@@ -10,31 +10,32 @@
 
 
     <div class="main--grid">
+  <div
+    class="column--wrapper"
+    v-for="(column, colIndex) in columns"
+    :key="colIndex"
+  >
+    <div class="column--header">{{ column.name }}</div>
 
-
-        <!-- +++++ column 2 +++++ -->
-        <div class="column--wrapper"  > 
-            <div class="column--header">
-                <p>Research / Marketing</p>
-            </div>
-                <div class="column--element"
-                v-for="element in columnOne"
-                @click="toggleElement(element)"
-                :class="{ disabled: !element.enabled }"                > 
-                    <p class="element--name">{{element.name}}</p>
-                    <div class="element--hours">
-                        <p> {{ getEffectiveHours(element) }}h</p>
-                    </div>
-            </div>
-            <div style="width: calc(100% - 34px); display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                <svg style="width: 30px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M26.29 20.29 18 28.59V0h-2v28.59l-8.29-8.3-1.42 1.42 10 10a1 1 0 0 0 1.41 0l10-10z" data-name="2-Arrow Down"/></svg>
-                <h1 class="columnSum">{{ totalHours }}h</h1> 
-            </div>
-            
-        </div>
-
-        
+    <div
+      class="column--element"
+      v-for="(element, elIndex) in column.elements"
+      :key="elIndex"
+      @click="toggleElement(column, element)"
+      :class="{ disabled: !element.enabled }"
+    >
+      <p class="element--name">{{ element.name }}</p>
+      <div class="element--hours">
+        <p>{{ getEffectiveHours(element) }}h</p>
+      </div>
     </div>
+
+    <div class="column-total">
+      <h1 class="columnSum">{{ getColumnTotal(column) }}h</h1>
+    </div>
+  </div>
+</div>
+
 
     <div class="macro--controls">
 
@@ -101,32 +102,71 @@ function toggleButtonSeitenzahl() {
 }
 
 const totalHours = computed(() => {
-    return columnOne.value
-        .reduce((sum, item) => sum + getEffectiveHours(item), 0)
+    return columns.value.reduce((sum, col) => sum + getColumnTotal(col), 0);
 })
 
-const getEffectiveHours = (element) => {
-    return element.enabled ? element.hours * seitenzahl.value : 0 
+const getColumnTotal = (column) => {
+    return column.elements.reduce((sum, el) => sum + getEffectiveHours(el), 0);
 }
 
-function toggleElement(element) {
-    element.enabled = !element.enabled  // Toggle between true/false
+const getEffectiveHours = (element) => {
+    return element.enabled ? element.hours * seitenzahl.value : 0;
+}
+
+function toggleElement(column, element) {
+    element.enabled = !element.enabled;
     console.log('Element toggled:', element.name, 'Enabled:', element.enabled)
 }
 
-const columnSum = computed(() => {
-    return totalHours.value *stundenLohn
-})
+const columnSum = computed(() => totalHours.value * stundenLohn)
+
 
 const stundenLohn = 150;
 
-const columnOne = ref([
-    {name: "Wer sind wir?", hours: 2, enabled: true},
-    {name: "Wie sind wir?", hours: 2, enabled: true},
-    {name: "Für wen sind wir?", hours: 2, enabled: true},
-    {name: "Zielgruppe definieren", hours: 2, enabled: true},
-    {name: "Konkurrenzanalyse", hours: 2, enabled: true},
-])
+const columns = ref([
+    {
+        name: "Research / Marketing",
+        elements: [
+            { name: "Wer sind wir?", hours: 2, enabled: true },
+            { name: "Wie sind wir?", hours: 2, enabled: true },
+            { name: "Für wen sind wir?", hours: 2, enabled: true },
+        ],
+    },
+    {
+        name: "Grundbausteine",
+        elements: [
+            { name: "Farbkonzept", hours: 2, enabled: true },
+            { name: "Typografie-System", hours: 2, enabled: true },
+            { name: "Gestaltungskonzept Layout", hours: 3, enabled: true },
+            { name: "Brand Guidelines", hours: 3, enabled: true },
+            { name: "Gestaltungs-Elemente (Icons etc)", hours: 2, enabled: true },
+            { name: "Bildwelt definieren", hours: 3, enabled: true },
+        ],
+    },
+    {
+        name: "Anwendungen",
+        elements: [
+            { name: "Website Struktur & Gestaltung", hours: 4, enabled: true },
+            { name: "Website umsetzen", hours: 6, enabled: true },
+            { name: "Website Unterseiten umsetzen", hours: 5, enabled: true },
+            { name: "Website Testen und optimieren", hours: 3, enabled: true },
+            { name: "Portraits fotografieren", hours: 2, enabled: true },
+            { name: "Texte schreiben", hours: 3, enabled: true },
+            { name: "Bildwelt fotografieren & 3d Render", hours: 5, enabled: true },
+        ],
+    },
+    {
+        name: "Vorlagen*",
+        elements: [
+            { name: "Offerten", hours: 2, enabled: true },
+            { name: "Datenblätter", hours: 2, enabled: true },
+            { name: "Visitenkarten, Sticker usw", hours: 2, enabled: true },
+            { name: "Rechnungen", hours: 1, enabled: true },
+            { name: "Fotostudio einrichten", hours: 3, enabled: true },
+            { name: "Bildbearbeitung Vorlagen", hours: 3, enabled: true },
+        ],
+    },
+]);
 
 const seitenzahl = ref(1);
 seitenzahl.value= 2;
@@ -272,7 +312,8 @@ seitenzahl.value= 2;
     }
 
     .element--name{
-        padding: 32px 2px;
+        font-size: 14px;
+        padding: 24px 16px;
         text-align: center;
         background-color: rgb(177, 229, 167);
         width: 100%;
