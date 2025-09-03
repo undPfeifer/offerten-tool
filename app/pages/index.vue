@@ -1,13 +1,15 @@
 <template>
     <div>
         <p class="eyebrow"> <span>CLIMAEXPERT </span>Branding & Webdesign </p>
-        <h1 style="margin-bottom: 28px;">Offerte | Rebranding</h1>
+        <div style="display:flex">
+
+            <h1 style="margin-bottom: 28px;">Offerte |</h1> <input type="text" placeholder="Projektname"> 
+        </div>
     </div>
 
 
 <section class="body--container">
 <section>
-
 
     <div class="main--grid">
   <div
@@ -15,7 +17,9 @@
     v-for="(column, colIndex) in columns"
     :key="colIndex"
   >
-    <div class="column--header">{{ column.name }}</div>
+    <div class="column--header">
+      <p>{{ column.name }}</p>
+    </div>
 
     <div
       class="column--element"
@@ -30,7 +34,20 @@
       </div>
     </div>
 
-    <div class="column-total">
+    <!-- Arrow + column total at bottom -->
+    <div
+      style="width: calc(100% - 34px); display: flex; flex-direction: column; align-items: center; gap: 10px;"
+    >
+      <svg
+        style="width: 30px;"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 32 32"
+      >
+        <path
+          d="M26.29 20.29 18 28.59V0h-2v28.59l-8.29-8.3-1.42 1.42 10 10a1 1 0 0 0 1.41 0l10-10z"
+          data-name="2-Arrow Down"
+        />
+      </svg>
       <h1 class="columnSum">{{ getColumnTotal(column) }}h</h1>
     </div>
   </div>
@@ -68,7 +85,7 @@
                 >ohne</h1>
                 <h1
                 v-else
-                >{{ columnSum * 0.85}}.-</h1>
+                >{{ Math.floor((columnSum * 0.85)/10) *10}}.-</h1>
             </div>
         </section>
         <p class="annotations">*Weil grössere Aufträge viel Zeit in Administration und Akquise sparen, können sie kostengünstiger angeboten werden.</p>
@@ -92,7 +109,7 @@ const buttonState = ref('multi') // or ref(true/false)
 function toggleButtonSeitenzahl() {
     if (buttonState.value === 'single') {
         buttonState.value = 'multi'
-        seitenzahl.value = 2
+        seitenzahl.value = 1.5
         console.log('switched to multi-site')
     } else {
         buttonState.value = 'single' 
@@ -127,9 +144,11 @@ const columns = ref([
     {
         name: "Research / Marketing",
         elements: [
-            { name: "Wer sind wir?", hours: 2, enabled: true },
-            { name: "Wie sind wir?", hours: 2, enabled: true },
-            { name: "Für wen sind wir?", hours: 2, enabled: true },
+            { name: "Wer sind wir?", hours: 1, enabled: true },
+            { name: "Wie sind wir?", hours: 0.5, enabled: true },
+            { name: "Für wen sind wir?", hours: 0.5, enabled: true },
+            { name: "Zielgruppe definieren", hours: 1, enabled: true },
+            { name: "Konkurrenzanalyse", hours: 2, enabled: true },
         ],
     },
     {
@@ -137,6 +156,7 @@ const columns = ref([
         elements: [
             { name: "Farbkonzept", hours: 2, enabled: true },
             { name: "Typografie-System", hours: 2, enabled: true },
+            { name: "Logo", hours: 6, enabled: true },
             { name: "Gestaltungskonzept Layout", hours: 3, enabled: true },
             { name: "Brand Guidelines", hours: 3, enabled: true },
             { name: "Gestaltungs-Elemente (Icons etc)", hours: 2, enabled: true },
@@ -169,7 +189,7 @@ const columns = ref([
 ]);
 
 const seitenzahl = ref(1);
-seitenzahl.value= 2;
+seitenzahl.value= 1.5;
     
 </script>
 
@@ -214,7 +234,8 @@ seitenzahl.value= 2;
         background-color: black;
         color: white;
 
-        padding: 12px;
+        font-size: 14px;
+        padding: 6px;
         border: 1px solid white;
     }
 
@@ -229,7 +250,7 @@ seitenzahl.value= 2;
     .annotations {
         font-size: 11px;
         opacity: 0.5;
-        position: absolute;
+        position: fixed;
         bottom: 10px;
     }
 
@@ -250,6 +271,30 @@ seitenzahl.value= 2;
         font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         letter-spacing: -1px;
     }
+
+    input {
+        all: unset;
+        font-size: 44px;
+        font-weight: 900;
+        font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        letter-spacing: -1px;
+        margin: 0px;
+        padding: 0px 10px 0px 10px; 
+        height: fit-content;
+        caret-color: green;
+        color: #4CAF50;
+
+  }
+
+  input:focus {
+    color: black;
+    animation: blinkBorder 1s infinite;
+
+  }
+  @keyframes blinkBorder {
+  0%, 100% { color: #4CAF50; }
+  50% { color: #68ce6b; }
+}
 
     .eyebrow {
         font-size: 14px;
@@ -285,6 +330,7 @@ seitenzahl.value= 2;
         display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr;
         gap: 16px;
+        max-width: 940px;
     }
 
     .column--header{
@@ -374,7 +420,10 @@ seitenzahl.value= 2;
 
 
     .macro--controls{
-        padding: 20px 0px;
+        padding: 0px 0px;
+        position: fixed;
+        bottom: 36px;
+        width: 800px;
     }
 
     .macro--controls .p{
@@ -387,7 +436,7 @@ seitenzahl.value= 2;
 
 /* #region PREIS SECTION */
 .preis--container {
-        margin-top: 40px;
+        margin-top: 20px;
 
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
