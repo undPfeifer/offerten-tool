@@ -2,131 +2,141 @@
     <div>
         <p class="eyebrow"> <span>CLIMAEXPERT </span>Branding & Webdesign </p>
         <div style="display:flex">
-
-            <h1 style="margin-bottom: 28px;">Offerte |</h1> <input type="text" placeholder="Projektname" style="font-weight: 900;"> 
+            <h1 style="margin-bottom: 28px;">Offerte |</h1> 
+            <input 
+            type="text" 
+            placeholder="Projektname" 
+            v-model="projektname"
+            style="font-weight: 900;"> 
         </div>
     </div>
 
+    <section class="body--container">
+        <section>
+            <div class="main--grid">
+                <div
+                    class="column--wrapper"
+                    v-for="(column, colIndex) in columns"
+                    :key="colIndex"
+                >
+                    <div class="column--header">
+                        <input 
+                          type="text"
+                          class="column--header_text"
+                          v-model="column.name"
+                        >
+                    </div>
 
-<section class="body--container">
-<section>
+                    <!-- DRAGGABLE LIST -->
+                    <draggable 
+                      v-model="column.elements" 
+                      item-key="name" 
+                      group="elements"
+                      class="column--list"
+                    >
+                      <template #item="{ element }">
+                        <div
+                          class="column--element"
+                          :class="{ disabled: !element.enabled }"
+                        >
+                          <input
+                              class="element--name"
+                              v-model="element.name"
+                              @click.shift="toggleElement(column, element)"
+                              @click.alt.meta="duplicateElement(column, element)"
+                              @click.shift.meta="removeElement(column, element)"
+                              @keyup.enter="($event) => $event.target.blur()"
 
-    <div class="main--grid">
-  <div
-    class="column--wrapper"
-    v-for="(column, colIndex) in columns"
-    :key="colIndex"
-  >
-    <div class="column--header">
-      <p>{{ column.name }}</p>
-    </div>
+                              :class="{
+                                  'low-hours': element.hours <= 2,
+                                  'medium-hours': element.hours > 2 && element.hours <= 5,
+                                  'high-hours': element.hours > 5
+                              }"
+                              placeholder="Enter name"
+                          />
+                          
+                          <div class="element--hours">
+                            <p @click="addHours(element, $event)">
+                              {{ getEffectiveHours(element) }}h
+                            </p>
+                          </div>
+                        </div>
+                      </template>
+                    </draggable>
 
-    <div
-      class="column--element"
-      v-for="(element, elIndex) in column.elements"
-      :key="elIndex"
-      :class="{ disabled: !element.enabled }"
-    >
-        <input
-            class="element--name"
-            v-model="element.name"
-            @click.shift="toggleElement(column, element)"
-            @click.alt.meta="duplicateElement(column, element)"
-            @click.shift.meta="removeElement(column, element)"
-            @keyup.enter="($event) => $event.target.blur()"
-
-            :class="{
-                'low-hours': element.hours <= 2,
-                'medium-hours': element.hours > 2 && element.hours <= 5,
-                'high-hours': element.hours > 5
-            }"
-            placeholder="Enter name"
-        />
-        
-      <div class="element--hours">
-        <p
-        @click="addHours(element, $event)"
-
-
-        >{{ getEffectiveHours(element) }}h</p>
-      </div>
-    </div>
-
-    <!-- Arrow + column total at bottom -->
-    <div
-      style="width: calc(100% - 34px); display: flex; flex-direction: column; align-items: center; gap: 10px;"
-    >
-      <svg
-        style="width: 20px;"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 32 32"
-      >
-        <path
-          d="M26.29 20.29 18 28.59V0h-2v28.59l-8.29-8.3-1.42 1.42 10 10a1 1 0 0 0 1.41 0l10-10z"
-          data-name="2-Arrow Down"
-        />
-      </svg>
-      <h1 class="columnSum">{{ getColumnTotal(column) }}h</h1>
-    </div>
-  </div>
-</div>
-
-
-    <div class="macro--controls">
-
-        <button
-        @click="toggleButtonSeitenzahl"
-        :class="{inactive: buttonState !== 'single'}"
-    >single site</button>
-    
-    <button
-        @click="toggleButtonSeitenzahl" 
-        :class="{inactive: buttonState !== 'multi'}"
-    >multi-site</button>
-
-
-</div>
-<div class="preis--wrapper">
-        <section class="preis--container">
-
-            <div>
-                <p>Stundenaufwand</p>
-                <h1>{{ totalHours }}h</h1>
+                    <!-- Arrow + column total at bottom -->
+                    <div
+                      style="width: calc(100% - 34px); display: flex; flex-direction: column; align-items: center; gap: 10px;"
+                    >
+                      <svg
+                        style="width: 20px;"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 32 32"
+                      >
+                        <path
+                          d="M26.29 20.29 18 28.59V0h-2v28.59l-8.29-8.3-1.42 1.42 10 10a1 1 0 0 0 1.41 0l10-10z"
+                          data-name="2-Arrow Down"
+                        />
+                      </svg>
+                      <h1 class="columnSum">{{ getColumnTotal(column) }}h</h1>
+                    </div>
+                </div>
             </div>
-            <div :style="{ opacity: columnSum > 5000 ? 0.2 : 1 }">
-                <p >Preis</p>
-                <h1>
-                {{ columnSum }}.-</h1>
-            </div>
-            <div :style="{ opacity: columnSum < 5000 ? 0.2 : 1 }">
-                <p>Preis mit Grössenrabatt*</p>
 
-                <h1
-                v-if="columnSum<5000"
-                >ohne</h1>
-                <h1
-                v-else
-                >{{ Math.floor((columnSum * 0.85)/10) *10}}.-</h1>
+            <div class="macro--controls">
+                <button
+                  @click="toggleButtonSeitenzahl"
+                  :class="{inactive: buttonState !== 'single'}"
+                >single site</button>
+                
+                <button
+                  @click="toggleButtonSeitenzahl" 
+                  :class="{inactive: buttonState !== 'multi'}"
+                >multi-site</button>
             </div>
-            
+
+            <div class="preis--wrapper">
+                <section class="preis--container">
+                    <div>
+                        <p>Stundenaufwand</p>
+                        <h1>{{ totalHours }}h</h1>
+                    </div>
+                    <div :style="{ opacity: columnSum > 5000 ? 0.2 : 1 }">
+                        <p >Preis</p>
+                        <h1>{{ columnSum }}.-</h1>
+                    </div>
+                    <div :style="{ opacity: columnSum < 5000 ? 0.2 : 1 }">
+                        <p>Preis mit Grössenrabatt*</p>
+                        <h1 v-if="columnSum<5000">ohne</h1>
+                        <h1 v-else>{{ Math.floor((columnSum * 0.85)/10) *10}}.-</h1>
+                    </div>
+                </section>
+                <button @click="saveState">💾 Save</button> 
+                <label for="fileInput" class="file--open">
+                    📂 Load Project
+                    </label>
+                    <input 
+                    id="fileInput"
+                    class="file--input_hide"
+                    type="file" 
+                    accept="application/json" 
+                    @change="loadState" 
+                    />
+            </div>
+
         </section>
-    </div>
+    </section>
 
 
-
-
-
- </section>
-</section>
-
-<p class="annotations">*Weil grössere Aufträge viel Zeit in Administration und Akquise sparen, können sie kostengünstiger angeboten werden.</p>
-
-
-<p class="foothair"> {{today}} <span>&pfeifer </span> </p>
-
+    <p class="annotations">*Weil grössere Aufträge viel Zeit in Administration und Akquise sparen, können sie kostengünstiger angeboten werden.</p>
+    <p class="foothair"> {{today}} <span>&pfeifer </span> </p>
 </template>
 
+
 <script setup>
+
+import draggable from "vuedraggable";
+
 
 function addHours (element , event) {
     if (event.shiftKey) {
@@ -199,7 +209,7 @@ function duplicateElement(column, element) {
   }
 }
 
-const stundenLohn = 150;
+const stundenLohn = 100;
 
 const columns = ref([
     {
@@ -258,8 +268,54 @@ seitenzahl.value= 2;
 //data
 
 let today = new Date().toLocaleDateString()
+const projektname = ref("Projekt"); // default fallback
 
 //icons
+
+
+
+
+//SAVE DATA
+
+function saveState() {
+  const state = {
+    columns: columns.value,
+    seitenzahl: seitenzahl.value,
+    buttonState: buttonState.value,
+  };
+
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  const safeName = projektname.value?.trim() || "Offerte";
+  a.download = `Offerte-${safeName}.json`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+
+//LOAD DATA
+function loadState(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const loaded = JSON.parse(e.target.result);
+      columns.value = loaded.columns || [];
+      seitenzahl.value = loaded.seitenzahl ?? 1;
+      buttonState.value = loaded.buttonState ?? 'multi';
+    } catch (err) {
+      console.error("Invalid JSON file", err);
+    }
+  };
+  reader.readAsText(file);
+}
+
 
 
 
@@ -408,8 +464,12 @@ input:focus {
 .column--header {
     font-size: 1rem;
     border-bottom: 0.0625rem solid black;
-    padding: 0.25rem;
+    padding: 0rem 0rem 0.25rem 0rem;
     margin-bottom: 0.8rem;
+}
+
+.column--header_text{
+    font-size: 1rem;
 }
 
 .column--element {
@@ -539,5 +599,30 @@ input:focus {
 .high-hours {
     background-color: #4eb551;
     padding: 1.9rem 1rem;
+}
+
+
+
+
+
+.file--open {
+    font-size: 14px;
+    color: black;
+    background: white;
+    border: 1px solid rgb(205, 205, 205);
+    padding: 4px ;
+    border-radius: 8px;
+    margin-left: 2px;
+
+    cursor: pointer;
+}
+
+.file--open:hover {
+    border: 1px solid black;
+}
+
+
+.file--input_hide{
+    visibility: hidden;
 }
 </style>
