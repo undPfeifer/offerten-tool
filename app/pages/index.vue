@@ -3,7 +3,7 @@
         <p class="eyebrow"> <span>CLIMAEXPERT </span>Branding & Webdesign </p>
         <div style="display:flex">
 
-            <h1 style="margin-bottom: 28px;">Offerte |</h1> <input type="text" placeholder="Projektname"> 
+            <h1 style="margin-bottom: 28px;">Offerte |</h1> <input type="text" placeholder="Projektname" style="font-weight: 900;"> 
         </div>
     </div>
 
@@ -27,15 +27,22 @@
       :key="elIndex"
       :class="{ disabled: !element.enabled }"
     >
-      <p class="element--name"
-      @click="toggleElement(column, element)"
-      :class="{
-        'low-hours': element.hours <= 2,
-        'medium-hours': element.hours > 2 && element.hours <= 5,
-        'high-hours': element.hours > 5
-      }"
+        <input
+            class="element--name"
+            v-model="element.name"
+            @click.shift="toggleElement(column, element)"
+            @click.alt.meta="duplicateElement(column, element)"
+            @click.shift.meta="removeElement(column, element)"
+            @keyup.enter="($event) => $event.target.blur()"
 
-      >{{ element.name }}</p>
+            :class="{
+                'low-hours': element.hours <= 2,
+                'medium-hours': element.hours > 2 && element.hours <= 5,
+                'high-hours': element.hours > 5
+            }"
+            placeholder="Enter name"
+        />
+        
       <div class="element--hours">
         <p
         @click="addHours(element, $event)"
@@ -86,16 +93,16 @@
                 <p>Stundenaufwand</p>
                 <h1>{{ totalHours }}h</h1>
             </div>
-            <div :style="{ opacity: columnSum > 2000 ? 0.2 : 1 }">
+            <div :style="{ opacity: columnSum > 5000 ? 0.2 : 1 }">
                 <p >Preis</p>
                 <h1>
                 {{ columnSum }}.-</h1>
             </div>
-            <div :style="{ opacity: columnSum < 2000 ? 0.2 : 1 }">
+            <div :style="{ opacity: columnSum < 5000 ? 0.2 : 1 }">
                 <p>Preis mit Grössenrabatt*</p>
 
                 <h1
-                v-if="columnSum<2000"
+                v-if="columnSum<5000"
                 >ohne</h1>
                 <h1
                 v-else
@@ -174,6 +181,24 @@ function toggleElement(column, element) {
 const columnSum = computed(() => totalHours.value * stundenLohn)
 
 
+function removeElement(column, element) {
+  const index = column.elements.indexOf(element)
+  if (index !== -1) {
+    column.elements.splice(index, 1)  // <-- reactive removal
+  }
+}
+
+
+function duplicateElement(column, element) {
+  const index = column.elements.indexOf(element)
+  if (index !== -1) {
+    // Create a shallow copy of the element
+    const newElement = { ...element }
+    // Insert it after the original
+    column.elements.splice(index + 1, 0, newElement)
+  }
+}
+
 const stundenLohn = 150;
 
 const columns = ref([
@@ -233,6 +258,11 @@ seitenzahl.value= 2;
 //data
 
 let today = new Date().toLocaleDateString()
+
+//icons
+
+
+
     
 </script>
 
@@ -322,14 +352,12 @@ h1 {
 input {
     all: unset;
     font-size: 2.75rem;
-    font-weight: 900;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    letter-spacing: -0.0625rem;
+    font-weight: 400;
     margin: 0rem;
     padding: 0rem 0.625rem;
     height: fit-content;
     caret-color: green;
-    color: #4CAF50;
+    color: #000000;
 }
 
 input:focus {
